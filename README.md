@@ -242,9 +242,13 @@ http://qiita.com/fukumone/items/73e1a9a62c5e4454263b
 `$ git commit -m “コミットメッセージ”`  
 コミットメッセージを指定してコミット
 
-`$ git push -u origin master`  
+`$ git push origin master`  
 masterブランチにpush
 
+## 使うかもしれないGitコマンド
+
+`$ git reset HEAD`
+git addを取り消す
 
 ## URLがうまく使えないことがあれば
 
