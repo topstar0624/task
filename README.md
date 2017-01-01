@@ -129,3 +129,138 @@ You must update files manually if files in `application` folder or `index.php` c
 * [CodeIgniter Deployer](https://github.com/kenjis/codeigniter-deployer)
 * [CodeIgniter3 Filename Checker](https://github.com/kenjis/codeigniter3-filename-checker)
 * [CodeIgniter Widget (View Partial) Sample](https://github.com/kenjis/codeigniter-widgets)
+
+
+---
+
+# 星先初期設定
+
+## GitHubにリポジトリを作成(すでにあれば不要)
+
+`Initialize this repository with a README` にチェックいれると  
+最初から `README.md` を作成してくれる。  
+今回はなくてもいいかな。
+
+`Add .gitignore` で `CodeIgnitor` を選んであげると、  
+勝手に `.gitignore` を用意してくれる。
+
+緑色の `Clone or Download` ボタンから `SSH key` を取得できる。あとで使う。
+
+## Cloud9でworkspaceを作成
+
+`Workspace name` 入力  
+`Description` workspaceの説明だけどなくてもいい  
+`Clone from Git or Mercurial URL` さっきの `SSH key` を貼り付け  
+`Choose a template` phpを選択
+
+## Cloud9の設定
+
+基本defaultを使ってる。  
+`Preferences` の `EXPERIMENTAL` で `Auto-Save` をON。  
+workspaceツリー右上の歯車から、 `Show Hidden Files` にチェックを追加。
+
+## Composerをインストール
+
+下記を参考にした  
+http://cloud-collector.link/2016/07/codeigniter-in-cloud9/  
+http://blog.a-way-out.net/blog/2015/12/06/install-codeigniter/
+
+```
+$ curl -sS https://getcomposer.org/installer | php
+$ sudo php5dismod xdebug
+```
+
+## ComposerでCodeIgnitorをインストール
+
+```
+$ composer create-project kenjis/codeigniter-composer-installer codeigniter
+```
+
+  codeigniterフォルダが自動で作られる。  
+このままだとwelcomeが (URL)/codeigniter/public になってしまう。  
+codeigniterフォルダの中身をルートの直下に置きたい。
+
+GitHubで生成された `.gitignore` とcodeigniterフォルダ直下の `.gitignore` を合体させた上で、
+codeigniterフォルダの中身をルート直下に移動させて、空になったcodeigniterフォルダを削除した。  
+たぶん問題ないと思う。
+
+## 追加コンポーネントのインストール
+
+よく分からないけど便利らしいので、続けて↓
+
+```
+$ bin/my-codeigniter.sh
+```
+
+## ルートの変更
+
+このままだとまだwelcomeが (URL)/public のまま。  
+welcomeは(URL)直下で表示してほしい！
+
+```
+$ sudo vim /etc/apache2/sites-available/001-cloud9.config
+i //vimをインサートモードにする
+```
+
+`DocumentRoot /home/ubuntu/workspace/` を  
+`DocumentRoot /home/ubuntu/workspace/public/` に修正。
+
+```
+esc //通常モードに戻る
+ZZ //保存して閉じる
+```
+
+Apacheを再起動して無事表示できた。
+
+## GitHubに最初のpush
+
+```
+$ git init
+$ git add .
+$ git commit -m "コミットメッセージ"
+$ git remote add origin gitの SSH key をコピペ
+$ git commit
+$ git push -u origin master
+```
+
+
+---
+
+# 星先今後やること
+
+## 一区切りついたらGitHubにpush
+
+Gitコマンド一覧はここが分かりやすかった
+http://qiita.com/fukumone/items/73e1a9a62c5e4454263b
+
+`$ git status`  
+前回のコミットと比較してどのファイルが変更されたかを確認(飛ばしてもOK)
+
+`$ git add .`  
+すべての変更をstageに追加
+
+`$ git commit -m “コミットメッセージ”`  
+コミットメッセージを指定してコミット
+
+`$ git push -u origin master`  
+masterブランチにpush
+
+
+## URLがうまく使えないことがあれば
+
+もしかしたら  
+`application/config/config.php` の  
+`$config['base_url'] = '';` を  
+`$config['base_url'] = 'http://(URL)';` に変更する必要があるかも。
+
+> これをやらないと例えばecho form_open()みたいなタグを使った時に、URLがIPアドレスで出力されてしまってうまく動かなくなります。
+
+って記述が参考サイトにあったため。
+
+## CodeIgniterがバージョンアップしてたら
+
+composerを使ってアップデートするといい。
+
+```
+$ composer update
+```
