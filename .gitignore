@@ -13,6 +13,8 @@ composer.phar
 application/logs/
 
 */config/development
+*/config/production
+*/config/testing
 */logs/log-*.php
 !*/logs/index.html
 */cache/*

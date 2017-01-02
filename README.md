@@ -218,11 +218,86 @@ Apacheを再起動して無事表示できた。
 $ git init
 $ git add .
 $ git commit -m "コミットメッセージ"
-$ git remote add origin gitの SSH key をコピペ
+$ git remote add origin 【gitの SSH key をコピペ】
 $ git commit
 $ git push -u origin master
 ```
 
+## phpMyadminのインストールと設定
+
+```
+$ phpmyadmin-ctl install
+```
+
+phpMyadminのURIは  
+`(URL)/phpmyadmin/`
+
+初期設定だとDBのパスワードが設定されていないので、  
+ユーザー名にcloud9のユーザー名だけ入れてログインする。  
+
+`パスワードを変更する` をしておく。  
+database も作成しておく。
+
+## 環境の切り替え設定
+
+本番環境(独自ドメイン)と開発環境(Cloud9)でDBとか切り替えたい。
+
+`public/index.php` のここを
+```php
+define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+```
+
+こんな感じに書き換える。
+```php
+if(strpos($_SERVER['SERVER_NAME'],'c9users.io') !== false){
+    // SERVER_NAMEに'c9users.io'を含む場合は開発環境
+    define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+}else{
+    // それ以外は本番環境
+    define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
+}
+```
+
+`application/config` ディレクトリにディレクトリを追加する
+
+```
+application
+└─ config/
+    ├─ development/ //開発環境
+    ├─ production/  //本番環境
+    └─ testing/     //テスト環境(必要に応じて)
+```
+
+`sonfig.php` や `database.php` など、  
+各環境で設定を変えたいものがあれば各ディレクトリに複製して編集する。
+
+.gitignoreには `*/config/development` しかないので、下記も追加するといい。
+```
+*/config/production
+*/config/testing
+```
+
+## database.phpの編集php
+
+たぶんcloud9で編集が必要なのは以下くらいだと思う。たぶん。
+
+```
+$db['default'] = array(
+	'username' => getenv('C9_USER'),
+	'password' => 'さっき設定したやつ',
+	'database' => 'さっき設定したやつ',
+);
+```
+
+うん、つながった。
+
+## short_open_tag をONにする
+
+最初workspace直下に `php.ini` があった気がするんだけど消えてた…  
+`phpinfo()` で確認すると `/etc/php5/apache2` にある `php.ini` を見てるみたい。
+とりあえFanCallの `php.ini` をコピーしてworkspace直下に置いてApache再起動したら、  
+`phpinfo()` でもworkspace直下の `php.ini` を見てくれるようになってた。
+short_open_tagも無事ONになってた
 
 ---
 
@@ -247,8 +322,17 @@ masterブランチにpush
 
 ## 使うかもしれないGitコマンド
 
-`$ git reset HEAD`
+`$ git reset HEAD`  
 git addを取り消す
+
+`$ git commit --amend -m "コミット名"`  
+一つ前のコミットと統合する
+
+`$ git log`  
+gitのログを確認する
+
+`$ git log --oneline`
+gitのlogを簡潔にまとめて表示する
 
 ## URLがうまく使えないことがあれば
 

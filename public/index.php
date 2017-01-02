@@ -53,8 +53,13 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
-
+if(strpos($_SERVER['SERVER_NAME'],'c9users.io') !== false){
+    //SERVER_NAMEに'c9users.io'を含む場合は開発環境
+    define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+}else{
+    //それ以外は本番環境
+    define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
+}
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
